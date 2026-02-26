@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, ChevronDown, CreditCard, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
+import { MapPin, CreditCard, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
-import { brands, regions } from '@/lib/mock-data';
+import { useState, useEffect } from 'react';
 
 const heroSlides = [
   {
@@ -69,8 +68,6 @@ const promoCards = [
 
 export default function HeroSection() {
   const navigate = useNavigate();
-  const [searchBrand, setSearchBrand] = useState('all');
-  const [searchRegion, setSearchRegion] = useState('all');
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Auto-advance slides
@@ -80,13 +77,6 @@ export default function HeroSection() {
     }, 5000);
     return () => clearInterval(timer);
   }, []);
-
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchRegion !== 'all') params.set('region', searchRegion);
-    if (searchBrand !== 'all') params.set('brand', searchBrand);
-    navigate(`/cars?${params.toString()}`);
-  };
 
   const slide = heroSlides[currentSlide];
 
@@ -154,54 +144,6 @@ export default function HeroSection() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Search Bar */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 md:p-5 border border-white/20"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-white/60 uppercase tracking-wider">Brand</label>
-                    <div className="relative">
-                      <select
-                        value={searchBrand}
-                        onChange={(e) => setSearchBrand(e.target.value)}
-                        className="w-full h-11 px-3 pr-8 rounded-lg border border-white/20 bg-white/10 text-sm text-white appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
-                      >
-                        <option value="all" className="text-foreground">All Brands</option>
-                        {brands.map((b) => (
-                          <option key={b} value={b} className="text-foreground">{b}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-white/50 pointer-events-none" />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-white/60 uppercase tracking-wider">Region</label>
-                    <div className="relative">
-                      <select
-                        value={searchRegion}
-                        onChange={(e) => setSearchRegion(e.target.value)}
-                        className="w-full h-11 px-3 pr-8 rounded-lg border border-white/20 bg-white/10 text-sm text-white appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
-                      >
-                        <option value="all" className="text-foreground">All Regions</option>
-                        {regions.map((r) => (
-                          <option key={r.id} value={r.name} className="text-foreground">{r.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-white/50 pointer-events-none" />
-                    </div>
-                  </div>
-                  <div className="flex items-end">
-                    <Button variant="gold" size="lg" className="w-full h-11" onClick={handleSearch}>
-                      <Search className="w-4 h-4 mr-2" />
-                      Search
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
 
               {/* Slide Indicators */}
               <div className="flex items-center gap-2 pt-2">
