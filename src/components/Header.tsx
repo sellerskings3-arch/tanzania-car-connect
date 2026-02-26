@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Car, Menu, X, Phone, User, LogOut, Search, ChevronDown } from 'lucide-react';
+import { Car, Menu, X, Phone, User, LogOut, Search, ChevronDown, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { brands, regions } from '@/lib/mock-data';
 import {
@@ -26,6 +27,11 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchBrand, setSearchBrand] = useState('all');
   const [searchRegion, setSearchRegion] = useState('all');
+  const [searchTransmission, setSearchTransmission] = useState('all');
+  const [searchMinPrice, setSearchMinPrice] = useState('');
+  const [searchMaxPrice, setSearchMaxPrice] = useState('');
+  const [searchMinYear, setSearchMinYear] = useState('');
+  const [searchMaxYear, setSearchMaxYear] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -53,8 +59,23 @@ export default function Header() {
     const params = new URLSearchParams();
     if (searchRegion !== 'all') params.set('region', searchRegion);
     if (searchBrand !== 'all') params.set('brand', searchBrand);
+    if (searchTransmission !== 'all') params.set('transmission', searchTransmission);
+    if (searchMinPrice) params.set('minPrice', searchMinPrice);
+    if (searchMaxPrice) params.set('maxPrice', searchMaxPrice);
+    if (searchMinYear) params.set('minYear', searchMinYear);
+    if (searchMaxYear) params.set('maxYear', searchMaxYear);
     navigate(`/cars?${params.toString()}`);
     setSearchOpen(false);
+  };
+
+  const resetSearch = () => {
+    setSearchBrand('all');
+    setSearchRegion('all');
+    setSearchTransmission('all');
+    setSearchMinPrice('');
+    setSearchMaxPrice('');
+    setSearchMinYear('');
+    setSearchMaxYear('');
   };
 
   return (
@@ -164,20 +185,15 @@ export default function Header() {
       {/* Search Dropdown */}
       {searchOpen && (
         <div className="bg-primary border-t border-primary-foreground/10 animate-fade-in">
-          <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+          <div className="container mx-auto px-4 py-4 space-y-3">
+            {/* Row 1: Selects */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Brand</label>
                 <div className="relative">
-                  <select
-                    value={searchBrand}
-                    onChange={(e) => setSearchBrand(e.target.value)}
-                    className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
-                  >
+                  <select value={searchBrand} onChange={(e) => setSearchBrand(e.target.value)} className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none">
                     <option value="all" className="text-foreground">All Brands</option>
-                    {brands.map((b) => (
-                      <option key={b} value={b} className="text-foreground">{b}</option>
-                    ))}
+                    {brands.map((b) => <option key={b} value={b} className="text-foreground">{b}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/40 pointer-events-none" />
                 </div>
@@ -185,25 +201,50 @@ export default function Header() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Region</label>
                 <div className="relative">
-                  <select
-                    value={searchRegion}
-                    onChange={(e) => setSearchRegion(e.target.value)}
-                    className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
-                  >
+                  <select value={searchRegion} onChange={(e) => setSearchRegion(e.target.value)} className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none">
                     <option value="all" className="text-foreground">All Regions</option>
-                    {regions.map((r) => (
-                      <option key={r.id} value={r.name} className="text-foreground">{r.name}</option>
-                    ))}
+                    {regions.map((r) => <option key={r.id} value={r.name} className="text-foreground">{r.name}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/40 pointer-events-none" />
                 </div>
               </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Transmission</label>
+                <div className="relative">
+                  <select value={searchTransmission} onChange={(e) => setSearchTransmission(e.target.value)} className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none">
+                    <option value="all" className="text-foreground">All</option>
+                    <option value="Manual" className="text-foreground">Manual</option>
+                    <option value="Automatic" className="text-foreground">Automatic</option>
+                    <option value="CVT" className="text-foreground">CVT</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/40 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+            {/* Row 2: Price & Year ranges + Actions */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 items-end">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Min Price</label>
+                <Input type="number" placeholder="e.g. 5000000" value={searchMinPrice} onChange={(e) => setSearchMinPrice(e.target.value)} className="h-10 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Max Price</label>
+                <Input type="number" placeholder="e.g. 50000000" value={searchMaxPrice} onChange={(e) => setSearchMaxPrice(e.target.value)} className="h-10 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Min Year</label>
+                <Input type="number" placeholder="e.g. 2015" value={searchMinYear} onChange={(e) => setSearchMinYear(e.target.value)} className="h-10 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Max Year</label>
+                <Input type="number" placeholder="e.g. 2024" value={searchMaxYear} onChange={(e) => setSearchMaxYear(e.target.value)} className="h-10 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30" />
+              </div>
               <Button variant="gold" className="h-10" onClick={handleSearch}>
                 <Search className="w-4 h-4 mr-2" />
-                Search Cars
+                Search
               </Button>
-              <Button variant="ghost" className="h-10 text-primary-foreground/60" onClick={() => setSearchOpen(false)}>
-                Cancel
+              <Button variant="ghost" className="h-10 text-primary-foreground/60" onClick={resetSearch}>
+                Reset
               </Button>
             </div>
           </div>

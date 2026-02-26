@@ -1,41 +1,25 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { usePublicCars } from '@/hooks/useCars';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 import { Car, Fuel, Gauge, Calendar, Loader2 } from 'lucide-react';
 
-const BRANDS = [
-  'All Brands',
-  'Toyota', 'Honda', 'Nissan', 'Mazda', 'Mitsubishi', 'Subaru',
-  'Mercedes-Benz', 'BMW', 'Audi', 'Volkswagen', 'Ford', 'Chevrolet',
-  'Hyundai', 'Kia', 'Suzuki', 'Isuzu', 'Land Rover', 'Jeep'
-];
-
-const TRANSMISSIONS = ['All', 'Manual', 'Automatic', 'CVT', 'Semi-Automatic'];
-
 export default function CarsPage() {
-  const [brand, setBrand] = useState('All Brands');
-  const [transmission, setTransmission] = useState('All');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [minYear, setMinYear] = useState('');
-  const [maxYear, setMaxYear] = useState('');
+  const [searchParams] = useSearchParams();
 
-  const filters = {
-    brand: brand !== 'All Brands' ? brand : undefined,
-    transmission: transmission !== 'All' ? transmission : undefined,
-    minPrice: minPrice ? Number(minPrice) : undefined,
-    maxPrice: maxPrice ? Number(maxPrice) : undefined,
-    minYear: minYear ? Number(minYear) : undefined,
-    maxYear: maxYear ? Number(maxYear) : undefined,
-  };
+  const filters = useMemo(() => ({
+    brand: searchParams.get('brand') || undefined,
+    transmission: searchParams.get('transmission') || undefined,
+    minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined,
+    maxPrice: searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined,
+    minYear: searchParams.get('minYear') ? Number(searchParams.get('minYear')) : undefined,
+    maxYear: searchParams.get('maxYear') ? Number(searchParams.get('maxYear')) : undefined,
+  }), [searchParams]);
 
   const { data: cars, isLoading } = usePublicCars(filters);
 
@@ -47,14 +31,7 @@ export default function CarsPage() {
     }).format(price);
   };
 
-  const resetFilters = () => {
-    setBrand('All Brands');
-    setTransmission('All');
-    setMinPrice('');
-    setMaxPrice('');
-    setMinYear('');
-    setMaxYear('');
-  };
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -66,103 +43,18 @@ export default function CarsPage() {
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Our Cars</h1>
             <p className="text-lg text-primary-foreground/80 max-w-2xl">
-              Find your perfect vehicle from our extensive collection of quality cars
+              Find your perfect vehicle — use the search bar above to filter by brand, price, year & more
             </p>
+            {activeFilterCount > 0 && (
+              <p className="text-sm text-accent mt-2">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</p>
+            )}
           </div>
         </section>
 
-        {/* Filters & Cars */}
+        {/* Cars Grid */}
         <section className="py-12">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              {/* Filters Sidebar */}
-              <aside className="lg:col-span-1">
-                <Card className="sticky top-20">
-                  <CardContent className="pt-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="font-semibold mb-4 flex items-center justify-between">
-                          Filters
-                          <Button variant="ghost" size="sm" onClick={resetFilters}>
-                            Reset
-                          </Button>
-                        </h3>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Brand</Label>
-                        <Select value={brand} onValueChange={setBrand}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BRANDS.map((b) => (
-                              <SelectItem key={b} value={b}>
-                                {b}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Transmission</Label>
-                        <Select value={transmission} onValueChange={setTransmission}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {TRANSMISSIONS.map((t) => (
-                              <SelectItem key={t} value={t}>
-                                {t}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Price Range (TZS)</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={minPrice}
-                            onChange={(e) => setMinPrice(e.target.value)}
-                          />
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={maxPrice}
-                            onChange={(e) => setMaxPrice(e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Year Range</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={minYear}
-                            onChange={(e) => setMinYear(e.target.value)}
-                          />
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={maxYear}
-                            onChange={(e) => setMaxYear(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </aside>
-
-              {/* Cars Grid */}
-              <div className="lg:col-span-3">
+            <div>
                 {isLoading ? (
                   <div className="flex items-center justify-center py-20">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -231,11 +123,10 @@ export default function CarsPage() {
                     <p className="text-muted-foreground mb-4">
                       Try adjusting your filters to see more results
                     </p>
-                    <Button onClick={resetFilters}>Reset Filters</Button>
+                    <Button onClick={() => window.location.href = '/cars'}>Reset Filters</Button>
                   </div>
                 )}
               </div>
-            </div>
           </div>
         </section>
       </main>
