@@ -1,8 +1,9 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Car, Menu, X, Phone, User, LogOut } from 'lucide-react';
+import { Car, Menu, X, Phone, User, LogOut, Search, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { brands, regions } from '@/lib/mock-data';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +23,11 @@ const navLinks = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchBrand, setSearchBrand] = useState('all');
+  const [searchRegion, setSearchRegion] = useState('all');
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
   useEffect(() => {
@@ -31,9 +36,9 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
+    setSearchOpen(false);
   }, [location.pathname]);
 
   const handleSignOut = async () => {
@@ -42,6 +47,14 @@ export default function Header() {
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchRegion !== 'all') params.set('region', searchRegion);
+    if (searchBrand !== 'all') params.set('brand', searchBrand);
+    navigate(`/cars?${params.toString()}`);
+    setSearchOpen(false);
   };
 
   return (
@@ -77,15 +90,23 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* CTA */}
+        {/* CTA + Search */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Search Toggle */}
+          <button
+            onClick={() => setSearchOpen(!searchOpen)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-primary-foreground/70 hover:text-accent hover:bg-primary-foreground/5 transition-colors"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden lg:inline">Search</span>
+          </button>
+
           <a href="tel:+255700000000" className="flex items-center gap-1.5 text-sm text-primary-foreground/70 hover:text-accent transition-colors">
             <Phone className="w-4 h-4" />
             <span className="hidden lg:inline">+255 700 000 000</span>
           </a>
           
           {user ? (
-            // Logged in user menu
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
@@ -97,16 +118,12 @@ export default function Header() {
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">My Account</span>
-                    <span className="text-xs text-muted-foreground truncate">
-                      {user.email}
-                    </span>
+                    <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/admin/dashboard" className="cursor-pointer">
-                    Dashboard
-                  </Link>
+                  <Link to="/admin/dashboard" className="cursor-pointer">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
@@ -116,7 +133,6 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            // Not logged in - show Sign In/Sign Up buttons
             <>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Sign In</Link>
@@ -129,13 +145,70 @@ export default function Header() {
         </div>
 
         {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-primary-foreground p-1"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            className="text-primary-foreground p-1"
+            onClick={() => { setSearchOpen(!searchOpen); setMobileOpen(false); }}
+          >
+            <Search className="w-5 h-5" />
+          </button>
+          <button
+            className="text-primary-foreground p-1"
+            onClick={() => { setMobileOpen(!mobileOpen); setSearchOpen(false); }}
+          >
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
+
+      {/* Search Dropdown */}
+      {searchOpen && (
+        <div className="bg-primary border-t border-primary-foreground/10 animate-fade-in">
+          <div className="container mx-auto px-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Brand</label>
+                <div className="relative">
+                  <select
+                    value={searchBrand}
+                    onChange={(e) => setSearchBrand(e.target.value)}
+                    className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
+                  >
+                    <option value="all" className="text-foreground">All Brands</option>
+                    {brands.map((b) => (
+                      <option key={b} value={b} className="text-foreground">{b}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/40 pointer-events-none" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-primary-foreground/50 uppercase tracking-wider">Region</label>
+                <div className="relative">
+                  <select
+                    value={searchRegion}
+                    onChange={(e) => setSearchRegion(e.target.value)}
+                    className="w-full h-10 px-3 pr-8 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
+                  >
+                    <option value="all" className="text-foreground">All Regions</option>
+                    {regions.map((r) => (
+                      <option key={r.id} value={r.name} className="text-foreground">{r.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/40 pointer-events-none" />
+                </div>
+              </div>
+              <Button variant="gold" className="h-10" onClick={handleSearch}>
+                <Search className="w-4 h-4 mr-2" />
+                Search Cars
+              </Button>
+              <Button variant="ghost" className="h-10 text-primary-foreground/60" onClick={() => setSearchOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       {mobileOpen && (
@@ -156,39 +229,25 @@ export default function Header() {
             ))}
             
             {user ? (
-              // Logged in user - mobile
-              <>
-                <div className="mt-3 pt-3 border-t border-primary-foreground/10">
-                  <div className="px-4 py-2 text-xs text-primary-foreground/60">
-                    {user.email}
-                  </div>
-                  <Link to="/admin/dashboard">
-                    <Button variant="outline" className="w-full mb-2">
-                      Dashboard
-                    </Button>
-                  </Link>
-                  <Button 
-                    variant="destructive" 
-                    className="w-full"
-                    onClick={handleSignOut}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </Button>
-                </div>
-              </>
+              <div className="mt-3 pt-3 border-t border-primary-foreground/10">
+                <div className="px-4 py-2 text-xs text-primary-foreground/60">{user.email}</div>
+                <Link to="/admin/dashboard">
+                  <Button variant="outline" className="w-full mb-2">Dashboard</Button>
+                </Link>
+                <Button variant="destructive" className="w-full" onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
+              </div>
             ) : (
-              // Not logged in - mobile
-              <>
-                <div className="mt-3 pt-3 border-t border-primary-foreground/10 space-y-2">
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link to="/login">Sign In</Link>
-                  </Button>
-                  <Button variant="gold" className="w-full" asChild>
-                    <Link to="/signup">Sign Up</Link>
-                  </Button>
-                </div>
-              </>
+              <div className="mt-3 pt-3 border-t border-primary-foreground/10 space-y-2">
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button variant="gold" className="w-full" asChild>
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </div>
             )}
           </nav>
         </div>
