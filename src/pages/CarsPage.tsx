@@ -1,170 +1,243 @@
-import { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CarCard from '@/components/CarCard';
-import FilterSidebar from '@/components/FilterSidebar';
-import { cars } from '@/lib/mock-data';
-import { FilterState } from '@/lib/types';
-import { SlidersHorizontal, X, LayoutGrid, List, ArrowUpDown } from 'lucide-react';
+import { usePublicCars } from '@/hooks/useCars';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Link } from 'react-router-dom';
+import { Car, Fuel, Gauge, Calendar, Loader2 } from 'lucide-react';
 
-const defaultFilters: FilterState = {
-  region: 'all',
-  brand: 'all',
-  minPrice: 0,
-  maxPrice: 250000000,
-  year: 'all',
-  transmission: 'all',
-  fuelType: 'all',
-  condition: 'all',
-};
+const BRANDS = [
+  'All Brands',
+  'Toyota', 'Honda', 'Nissan', 'Mazda', 'Mitsubishi', 'Subaru',
+  'Mercedes-Benz', 'BMW', 'Audi', 'Volkswagen', 'Ford', 'Chevrolet',
+  'Hyundai', 'Kia', 'Suzuki', 'Isuzu', 'Land Rover', 'Jeep'
+];
 
-type SortOption = 'newest' | 'price-low' | 'price-high' | 'mileage';
+const TRANSMISSIONS = ['All', 'Manual', 'Automatic', 'CVT', 'Semi-Automatic'];
 
 export default function CarsPage() {
-  const [searchParams] = useSearchParams();
-  const regionParam = searchParams.get('region');
-  const brandParam = searchParams.get('brand');
+  const [brand, setBrand] = useState('All Brands');
+  const [transmission, setTransmission] = useState('All');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minYear, setMinYear] = useState('');
+  const [maxYear, setMaxYear] = useState('');
 
-  const [filters, setFilters] = useState<FilterState>({
-    ...defaultFilters,
-    region: regionParam || 'all',
-    brand: brandParam || 'all',
-  });
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const filters = {
+    brand: brand !== 'All Brands' ? brand : undefined,
+    transmission: transmission !== 'All' ? transmission : undefined,
+    minPrice: minPrice ? Number(minPrice) : undefined,
+    maxPrice: maxPrice ? Number(maxPrice) : undefined,
+    minYear: minYear ? Number(minYear) : undefined,
+    maxYear: maxYear ? Number(maxYear) : undefined,
+  };
 
-  const filtered = useMemo(() => {
-    let result = cars.filter((car) => {
-      if (filters.region !== 'all' && car.region !== filters.region) return false;
-      if (filters.brand !== 'all' && car.brand !== filters.brand) return false;
-      if (car.price > filters.maxPrice) return false;
-      if (filters.year !== 'all' && car.year !== Number(filters.year)) return false;
-      if (filters.transmission !== 'all' && car.transmission !== filters.transmission) return false;
-      if (filters.fuelType !== 'all' && car.fuelType !== filters.fuelType) return false;
-      if (filters.condition !== 'all' && car.condition !== filters.condition) return false;
-      if (car.status === 'Sold') return false;
-      return true;
-    });
+  const { data: cars, isLoading } = usePublicCars(filters);
 
-    switch (sortBy) {
-      case 'price-low': result.sort((a, b) => a.price - b.price); break;
-      case 'price-high': result.sort((a, b) => b.price - a.price); break;
-      case 'mileage': result.sort((a, b) => a.mileage - b.mileage); break;
-      case 'newest': result.sort((a, b) => b.year - a.year); break;
-    }
-    return result;
-  }, [filters, sortBy]);
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-TZ', {
+      style: 'currency',
+      currency: 'TZS',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const resetFilters = () => {
+    setBrand('All Brands');
+    setTransmission('All');
+    setMinPrice('');
+    setMaxPrice('');
+    setMinYear('');
+    setMaxYear('');
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-
-      <main className="flex-1 bg-muted/30">
-        {/* Page Header */}
-        <div className="bg-primary py-12">
+      
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-primary to-primary/90 text-primary-foreground py-12">
           <div className="container mx-auto px-4">
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="font-display text-3xl md:text-4xl font-bold text-primary-foreground"
-            >
-              {filters.region !== 'all' ? `Cars in ${filters.region}` : 'All Cars'}
-            </motion.h1>
-            <p className="mt-2 text-primary-foreground/60">
-              {filtered.length} vehicle{filtered.length !== 1 ? 's' : ''} found
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Our Cars</h1>
+            <p className="text-lg text-primary-foreground/80 max-w-2xl">
+              Find your perfect vehicle from our extensive collection of quality cars
             </p>
           </div>
-        </div>
+        </section>
 
-        <div className="container mx-auto px-4 py-8">
-          {/* Toolbar */}
-          <div className="flex items-center justify-between mb-6 gap-4">
-            <div className="lg:hidden">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-              >
-                {mobileFiltersOpen ? <X className="w-4 h-4 mr-1.5" /> : <SlidersHorizontal className="w-4 h-4 mr-1.5" />}
-                Filters
-              </Button>
-            </div>
+        {/* Filters & Cars */}
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Filters Sidebar */}
+              <aside className="lg:col-span-1">
+                <Card className="sticky top-20">
+                  <CardContent className="pt-6">
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="font-semibold mb-4 flex items-center justify-between">
+                          Filters
+                          <Button variant="ghost" size="sm" onClick={resetFilters}>
+                            Reset
+                          </Button>
+                        </h3>
+                      </div>
 
-            <div className="hidden lg:block text-sm text-muted-foreground">
-              Showing <span className="font-semibold text-foreground">{filtered.length}</span> results
-            </div>
+                      <div className="space-y-2">
+                        <Label>Brand</Label>
+                        <Select value={brand} onValueChange={setBrand}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BRANDS.map((b) => (
+                              <SelectItem key={b} value={b}>
+                                {b}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-            <div className="flex items-center gap-2 ml-auto">
-              {/* Sort */}
-              <div className="relative flex items-center gap-1.5">
-                <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="h-9 pl-2 pr-7 rounded-lg border border-input bg-background text-sm text-foreground appearance-none cursor-pointer focus:ring-2 focus:ring-ring focus:outline-none"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="mileage">Lowest Mileage</option>
-                </select>
-              </div>
+                      <div className="space-y-2">
+                        <Label>Transmission</Label>
+                        <Select value={transmission} onValueChange={setTransmission}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TRANSMISSIONS.map((t) => (
+                              <SelectItem key={t} value={t}>
+                                {t}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-              {/* View Toggle */}
-              <div className="hidden md:flex items-center border border-input rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-accent text-accent-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-accent text-accent-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
+                      <div className="space-y-2">
+                        <Label>Price Range (TZS)</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input
+                            type="number"
+                            placeholder="Min"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Max"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Year Range</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input
+                            type="number"
+                            placeholder="Min"
+                            value={minYear}
+                            onChange={(e) => setMinYear(e.target.value)}
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Max"
+                            value={maxYear}
+                            onChange={(e) => setMaxYear(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </aside>
+
+              {/* Cars Grid */}
+              <div className="lg:col-span-3">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : cars && cars.length > 0 ? (
+                  <>
+                    <div className="mb-6">
+                      <p className="text-muted-foreground">
+                        Showing {cars.length} {cars.length === 1 ? 'car' : 'cars'}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {cars.map((car) => (
+                        <Card key={car.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                          <div className="aspect-video relative overflow-hidden bg-muted">
+                            {car.car_images?.[0] ? (
+                              <img
+                                src={car.car_images[0].image_url}
+                                alt={car.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Car className="h-16 w-16 text-muted-foreground" />
+                              </div>
+                            )}
+                            <Badge className="absolute top-3 right-3">
+                              {car.condition}
+                            </Badge>
+                          </div>
+                          <CardContent className="p-4">
+                            <h3 className="font-bold text-lg mb-2 line-clamp-1">{car.title}</h3>
+                            <p className="text-2xl font-bold text-primary mb-4">
+                              {formatPrice(Number(car.price))}
+                            </p>
+                            <div className="grid grid-cols-2 gap-3 mb-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                <span>{car.year}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Gauge className="h-4 w-4" />
+                                <span>{car.mileage.toLocaleString()} km</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Fuel className="h-4 w-4" />
+                                <span>{car.fuel_type}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Car className="h-4 w-4" />
+                                <span>{car.transmission}</span>
+                              </div>
+                            </div>
+                            <Link to={`/cars/${car.id}`}>
+                              <Button className="w-full">View Details</Button>
+                            </Link>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-20">
+                    <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl font-semibold mb-2">No cars found</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Try adjusting your filters to see more results
+                    </p>
+                    <Button onClick={resetFilters}>Reset Filters</Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-
-          <div className="flex gap-6">
-            {/* Sidebar */}
-            <aside className={`${mobileFiltersOpen ? 'block' : 'hidden'} lg:block w-full lg:w-72 flex-shrink-0`}>
-              <FilterSidebar
-                filters={filters}
-                onChange={setFilters}
-                onReset={() => setFilters(defaultFilters)}
-              />
-            </aside>
-
-            {/* Grid/List */}
-            <div className="flex-1">
-              {filtered.length > 0 ? (
-                <div className={
-                  viewMode === 'grid'
-                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5'
-                    : 'flex flex-col gap-4'
-                }>
-                  {filtered.map((car, i) => (
-                    <CarCard key={car.id} car={car} index={i} layout={viewMode} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20">
-                  <p className="text-lg text-muted-foreground">No cars match your filters.</p>
-                  <Button variant="gold" className="mt-4" onClick={() => setFilters(defaultFilters)}>
-                    Reset Filters
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        </section>
       </main>
 
       <Footer />

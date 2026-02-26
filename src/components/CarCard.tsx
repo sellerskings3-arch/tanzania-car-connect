@@ -1,19 +1,28 @@
 import { Link } from 'react-router-dom';
-import { Car } from '@/lib/types';
-import { formatPrice } from '@/lib/mock-data';
-import { Fuel, Gauge, Calendar, MapPin, Heart } from 'lucide-react';
+import { CarWithImages } from '@/lib/supabase';
+import { Fuel, Gauge, Calendar, Heart, Car as CarIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface CarCardProps {
-  car: Car;
+  car: CarWithImages;
   index?: number;
   layout?: 'grid' | 'list';
 }
 
 export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProps) {
   const [liked, setLiked] = useState(false);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-TZ', {
+      style: 'currency',
+      currency: 'TZS',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const mainImage = car.car_images?.[0]?.image_url;
 
   if (layout === 'list') {
     return (
@@ -27,10 +36,16 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
           className="group flex bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 border border-border/50"
         >
           <div className="relative w-64 flex-shrink-0 overflow-hidden">
-            <img src={car.images[0]} alt={car.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+            {mainImage ? (
+              <img src={mainImage} alt={car.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <CarIcon className="h-16 w-16 text-muted-foreground" />
+              </div>
+            )}
             <div className="absolute top-3 left-3">
-              <Badge className={`text-xs font-semibold px-2.5 py-1 ${car.status === 'Available' ? 'bg-emerald-500/90 text-white' : car.status === 'Reserved' ? 'bg-amber-500/90 text-white' : 'bg-red-500/90 text-white'}`}>
-                {car.status}
+              <Badge className="text-xs font-semibold px-2.5 py-1 bg-emerald-500/90 text-white">
+                {car.condition}
               </Badge>
             </div>
           </div>
@@ -40,13 +55,12 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
               <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{car.description}</p>
               <div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{car.year}</span>
-                <span className="flex items-center gap-1"><Fuel className="w-3.5 h-3.5" />{car.fuelType}</span>
+                <span className="flex items-center gap-1"><Fuel className="w-3.5 h-3.5" />{car.fuel_type}</span>
                 <span className="flex items-center gap-1"><Gauge className="w-3.5 h-3.5" />{car.mileage.toLocaleString()} km</span>
-                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{car.region}</span>
               </div>
             </div>
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
-              <p className="text-xl font-display font-bold text-gradient-gold">{formatPrice(car.price)}</p>
+              <p className="text-xl font-display font-bold text-gradient-gold">{formatPrice(Number(car.price))}</p>
               <div className="flex gap-2">
                 <Badge variant="secondary" className="text-xs">{car.transmission}</Badge>
                 <Badge variant="secondary" className="text-xs">{car.condition}</Badge>
@@ -70,10 +84,16 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
       >
         {/* Image */}
         <div className="relative aspect-[16/10] overflow-hidden">
-          <img src={car.images[0]} alt={car.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+          {mainImage ? (
+            <img src={mainImage} alt={car.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <CarIcon className="h-16 w-16 text-muted-foreground" />
+            </div>
+          )}
           <div className="absolute top-3 left-3">
-            <Badge className={`text-xs font-semibold px-2.5 py-1 ${car.status === 'Available' ? 'bg-emerald-500/90 text-white' : car.status === 'Reserved' ? 'bg-amber-500/90 text-white' : 'bg-red-500/90 text-white'}`}>
-              {car.status}
+            <Badge className="text-xs font-semibold px-2.5 py-1 bg-emerald-500/90 text-white">
+              {car.condition}
             </Badge>
           </div>
           <button
@@ -83,7 +103,7 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
             <Heart className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
           </button>
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-10">
-            <p className="text-xl font-bold text-white font-display">{formatPrice(car.price)}</p>
+            <p className="text-xl font-bold text-white font-display">{formatPrice(Number(car.price))}</p>
           </div>
         </div>
 
@@ -94,9 +114,8 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
           </h3>
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{car.year}</span>
-            <span className="flex items-center gap-1.5"><Fuel className="w-3.5 h-3.5" />{car.fuelType}</span>
+            <span className="flex items-center gap-1.5"><Fuel className="w-3.5 h-3.5" />{car.fuel_type}</span>
             <span className="flex items-center gap-1.5"><Gauge className="w-3.5 h-3.5" />{car.mileage.toLocaleString()} km</span>
-            <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{car.region}</span>
           </div>
           <div className="flex items-center gap-2 pt-1 border-t border-border/50">
             <Badge variant="secondary" className="text-xs">{car.transmission}</Badge>

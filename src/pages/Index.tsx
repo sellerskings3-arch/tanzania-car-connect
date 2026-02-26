@@ -3,15 +3,17 @@ import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import RegionGrid from '@/components/RegionGrid';
 import WhyChooseUs from '@/components/WhyChooseUs';
+import ServicesCarousel from '@/components/ServicesCarousel';
 import CarCard from '@/components/CarCard';
-import { cars } from '@/lib/mock-data';
+import { usePublicCars } from '@/hooks/useCars';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Index = () => {
-  const featuredCars = cars.filter((c) => c.status === 'Available').slice(0, 6);
+  const { data: cars, isLoading } = usePublicCars();
+  const featuredCars = cars?.slice(0, 6) || [];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -19,8 +21,6 @@ const Index = () => {
       
       <main className="flex-1">
         <HeroSection />
-
-        <WhyChooseUs />
 
         {/* Featured Cars */}
         <section className="py-20 bg-muted/30">
@@ -52,11 +52,21 @@ const Index = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCars.map((car, i) => (
-                <CarCard key={car.id} car={car} index={i} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : featuredCars.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredCars.map((car, i) => (
+                  <CarCard key={car.id} car={car} index={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 text-muted-foreground">
+                <p>No cars available at the moment. Check back soon!</p>
+              </div>
+            )}
 
             <div className="mt-10 text-center md:hidden">
               <Button variant="gold" asChild>
@@ -65,6 +75,10 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        <WhyChooseUs />
+
+        <ServicesCarousel />
 
         <RegionGrid />
 
