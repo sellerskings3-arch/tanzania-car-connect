@@ -24,17 +24,10 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      toast({
-        title: 'Success',
-        description: 'Logged in successfully',
-      });
+      toast({ title: 'Umefanikiwa', description: 'Umeingia kwa mafanikio' });
       navigate('/');
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to login',
-        variant: 'destructive',
-      });
+      toast({ title: 'Kosa', description: error instanceof Error ? error.message : 'Imeshindikana kuingia', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -43,7 +36,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <main className="flex-1 flex items-center justify-center bg-muted/30 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1 text-center">
             <div className="flex justify-center mb-4">
@@ -51,58 +44,32 @@ export default function LoginPage() {
                 <Car className="h-6 w-6 text-primary-foreground" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your Kings Sellers account</CardDescription>
+            <CardTitle className="text-2xl font-bold">Karibu Tena</CardTitle>
+            <CardDescription>Ingia kwenye akaunti yako ya Kings Sellers</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                />
+                <Label htmlFor="email">Barua Pepe</Label>
+                <Input id="email" type="email" placeholder="wewe@mfano.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
+                <Label htmlFor="password">Nenosiri</Label>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign In'
-                )}
+                {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Inaingia...</>) : 'Ingia'}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-sm text-center text-muted-foreground">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary hover:underline font-medium">
-                Sign up
-              </Link>
+              Huna akaunti?{' '}
+              <Link to="/signup" className="text-primary hover:underline font-medium">Jisajili</Link>
             </div>
             <div className="text-xs text-center text-muted-foreground">
               Admin?{' '}
-              <Link to="/admin/login" className="text-primary hover:underline">
-                Admin Login
-              </Link>
+              <Link to="/admin/login" className="text-primary hover:underline">Admin Login</Link>
             </div>
           </CardFooter>
         </Card>

@@ -4,8 +4,8 @@ import { Car, MapPin, Phone, Mail, Facebook, Instagram, Twitter } from 'lucide-r
 export default function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="container mx-auto px-4 py-10 md:py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2.5">
@@ -17,7 +17,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-primary-foreground/60 leading-relaxed max-w-xs">
-              Tanzania's premier car marketplace. Quality vehicles across all regions, trusted by thousands.
+              Soko la magari linaloaminika Tanzania. Magari bora katika mikoa yote, tunaaminika na maelfu ya wateja.
             </p>
             <div className="flex gap-3 pt-2">
               {[Facebook, Instagram, Twitter].map((Icon, i) => (
@@ -30,12 +30,12 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display font-semibold mb-5 text-accent">Quick Links</h4>
+            <h4 className="font-display font-semibold mb-5 text-accent">Viungo vya Haraka</h4>
             <ul className="space-y-3 text-sm text-primary-foreground/60">
               {[
-                { to: '/cars', label: 'Browse Cars' },
-                { to: '/about', label: 'About Us' },
-                { to: '/contact', label: 'Contact' },
+                { to: '/cars', label: 'Tazama Magari' },
+                { to: '/about', label: 'Kuhusu Sisi' },
+                { to: '/contact', label: 'Wasiliana' },
               ].map(({ to, label }) => (
                 <li key={to}><Link to={to} className="hover:text-accent transition-colors">{label}</Link></li>
               ))}
@@ -44,7 +44,7 @@ export default function Footer() {
 
           {/* Regions */}
           <div>
-            <h4 className="font-display font-semibold mb-5 text-accent">Our Regions</h4>
+            <h4 className="font-display font-semibold mb-5 text-accent">Mikoa Yetu</h4>
             <ul className="space-y-3 text-sm text-primary-foreground/60">
               {['Dar es Salaam', 'Arusha', 'Dodoma', 'Mbeya', 'Mwanza'].map((r) => (
                 <li key={r}>
@@ -59,7 +59,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-display font-semibold mb-5 text-accent">Contact Us</h4>
+            <h4 className="font-display font-semibold mb-5 text-accent">Wasiliana Nasi</h4>
             <ul className="space-y-3 text-sm text-primary-foreground/60">
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-accent/60" />
@@ -77,11 +77,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-primary-foreground/40">
-          <p>© {new Date().getFullYear()} Kings Sellers. All rights reserved.</p>
+        <div className="mt-10 md:mt-12 pt-6 md:pt-8 border-t border-primary-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-primary-foreground/40">
+          <p>© {new Date().getFullYear()} Kings Sellers. Haki zote zimehifadhiwa.</p>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-primary-foreground transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-primary-foreground transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-primary-foreground transition-colors">Sera ya Faragha</a>
+            <a href="#" className="hover:text-primary-foreground transition-colors">Masharti ya Huduma</a>
           </div>
         </div>
       </div>

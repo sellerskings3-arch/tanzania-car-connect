@@ -15,7 +15,7 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
   const [liked, setLiked] = useState(false);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-TZ', {
+    return new Intl.NumberFormat('sw-TZ', {
       style: 'currency',
       currency: 'TZS',
       minimumFractionDigits: 0,
@@ -33,23 +33,23 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
       >
         <Link
           to={`/cars/${car.id}`}
-          className="group flex bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 border border-border/50"
+          className="group flex flex-col sm:flex-row bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 border border-border/50"
         >
-          <div className="relative w-64 flex-shrink-0 overflow-hidden">
+          <div className="relative w-full sm:w-64 flex-shrink-0 aspect-video sm:aspect-auto overflow-hidden">
             {mainImage ? (
               <img src={mainImage} alt={car.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
             ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
+              <div className="w-full h-full bg-muted flex items-center justify-center min-h-[160px]">
                 <CarIcon className="h-16 w-16 text-muted-foreground" />
               </div>
             )}
             <div className="absolute top-3 left-3">
               <Badge className="text-xs font-semibold px-2.5 py-1 bg-emerald-500/90 text-white">
-                {car.condition}
+                {car.condition === 'New' ? 'Mpya' : 'Imetumika'}
               </Badge>
             </div>
           </div>
-          <div className="flex-1 p-5 flex flex-col justify-between">
+          <div className="flex-1 p-4 md:p-5 flex flex-col justify-between">
             <div>
               <h3 className="font-display font-semibold text-card-foreground text-lg group-hover:text-accent transition-colors">{car.title}</h3>
               <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{car.description}</p>
@@ -63,7 +63,6 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
               <p className="text-xl font-display font-bold text-gradient-gold">{formatPrice(Number(car.price))}</p>
               <div className="flex gap-2">
                 <Badge variant="secondary" className="text-xs">{car.transmission}</Badge>
-                <Badge variant="secondary" className="text-xs">{car.condition}</Badge>
               </div>
             </div>
           </div>
@@ -82,7 +81,6 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
         to={`/cars/${car.id}`}
         className="group block bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 border border-border/50"
       >
-        {/* Image */}
         <div className="relative aspect-[16/10] overflow-hidden">
           {mainImage ? (
             <img src={mainImage} alt={car.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
@@ -93,7 +91,7 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
           )}
           <div className="absolute top-3 left-3">
             <Badge className="text-xs font-semibold px-2.5 py-1 bg-emerald-500/90 text-white">
-              {car.condition}
+              {car.condition === 'New' ? 'Mpya' : 'Imetumika'}
             </Badge>
           </div>
           <button
@@ -107,7 +105,6 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
           </div>
         </div>
 
-        {/* Info */}
         <div className="p-4 space-y-3">
           <h3 className="font-display font-semibold text-card-foreground text-base leading-tight group-hover:text-accent transition-colors">
             {car.title}
@@ -119,7 +116,7 @@ export default function CarCard({ car, index = 0, layout = 'grid' }: CarCardProp
           </div>
           <div className="flex items-center gap-2 pt-1 border-t border-border/50">
             <Badge variant="secondary" className="text-xs">{car.transmission}</Badge>
-            <Badge variant="secondary" className="text-xs">{car.condition}</Badge>
+            <Badge variant="secondary" className="text-xs">{car.condition === 'New' ? 'Mpya' : 'Imetumika'}</Badge>
           </div>
         </div>
       </Link>

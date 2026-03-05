@@ -15,7 +15,7 @@ const heroSlides = [
   },
   {
     image: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1400&q=80',
-    tagline: 'Premium Selection',
+    tagline: 'Chaguo Bora',
     title: 'Magari Bora Tanzania',
     subtitle: 'Toyota, BMW, Mercedes-Benz na mengine. Magari yaliyokaguliwa na wataalamu.',
     cta: 'Tazama Sasa',
@@ -23,7 +23,7 @@ const heroSlides = [
   },
   {
     image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1400&q=80',
-    tagline: 'Countrywide Delivery',
+    tagline: 'Tunafikisha Kila Mkoa',
     title: 'Tunafika Kila Mkoa',
     subtitle: 'Dar es Salaam, Arusha, Dodoma, Mbeya, Mwanza — tupo karibu nawe.',
     cta: 'Chagua Mkoa',
@@ -31,7 +31,7 @@ const heroSlides = [
   },
   {
     image: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=1400&q=80',
-    tagline: 'Trade-In Available',
+    tagline: 'Badilisha Gari',
     title: 'Badilisha Gari Lako',
     subtitle: 'Uza gari lako la zamani na upate jipya kwa bei nafuu. Mchakato wa haraka.',
     cta: 'Wasiliana Nasi',
@@ -49,7 +49,7 @@ const promoCards = [
   {
     icon: Shield,
     title: 'Bima Kamili',
-    description: 'Comprehensive coverage included',
+    description: 'Bima ya kina imejumuishwa',
     color: 'bg-emerald-500',
   },
   {
@@ -61,7 +61,7 @@ const promoCards = [
   {
     icon: CheckCircle,
     title: 'Yamekaguliwa',
-    description: 'Inspected by certified mechanics',
+    description: 'Yamechunguzwa na wataalamu',
     color: 'bg-purple-500',
   },
 ];
@@ -70,7 +70,6 @@ export default function HeroSection() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Auto-advance slides
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -81,7 +80,7 @@ export default function HeroSection() {
   const slide = heroSlides[currentSlide];
 
   return (
-    <section className="relative min-h-[95vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[90vh] md:min-h-[95vh] flex items-center overflow-hidden">
       {/* Background Slides */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -103,11 +102,11 @@ export default function HeroSection() {
       </AnimatePresence>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 py-20 z-10">
+      <div className="relative container mx-auto px-4 py-16 md:py-20 z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-5 gap-10 items-center">
-            {/* Left: Text & Search */}
-            <div className="lg:col-span-3 space-y-6">
+          <div className="grid lg:grid-cols-5 gap-8 lg:gap-10 items-center">
+            {/* Left: Text */}
+            <div className="lg:col-span-3 space-y-5 md:space-y-6">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`text-${currentSlide}`}
@@ -124,11 +123,11 @@ export default function HeroSection() {
                     </span>
                   </div>
 
-                  <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05]">
+                  <h1 className="font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05]">
                     {slide.title}
                   </h1>
 
-                  <p className="text-lg md:text-xl text-white/70 max-w-xl leading-relaxed">
+                  <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-xl leading-relaxed">
                     {slide.subtitle}
                   </p>
 
@@ -143,7 +142,6 @@ export default function HeroSection() {
                   </Button>
                 </motion.div>
               </AnimatePresence>
-
 
               {/* Slide Indicators */}
               <div className="flex items-center gap-2 pt-2">
@@ -190,12 +188,28 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
+          {/* Mobile Promo Cards */}
+          <div className="grid grid-cols-2 gap-3 mt-8 lg:hidden">
+            {promoCards.map((card) => (
+              <div
+                key={card.title}
+                className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/15"
+              >
+                <div className={`w-8 h-8 rounded-lg ${card.color} flex items-center justify-center mb-2`}>
+                  <card.icon className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-display text-xs font-bold text-white mb-0.5">{card.title}</h3>
+                <p className="text-white/50 text-[10px] leading-relaxed">{card.description}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Bottom Stats */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex gap-10 mt-10 pt-8 border-t border-white/10"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-10 mt-8 md:mt-10 pt-6 md:pt-8 border-t border-white/10"
           >
             {[
               { value: '150+', label: 'Magari Yanapatikana' },
@@ -205,7 +219,7 @@ export default function HeroSection() {
             ].map((stat) => (
               <div key={stat.label}>
                 <p className="text-2xl md:text-3xl font-display font-bold text-accent">{stat.value}</p>
-                <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-[10px] md:text-xs text-white/40 mt-1 uppercase tracking-wider">{stat.label}</p>
               </div>
             ))}
           </motion.div>
