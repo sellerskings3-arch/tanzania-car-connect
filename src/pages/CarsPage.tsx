@@ -24,7 +24,7 @@ export default function CarsPage() {
   const { data: cars, isLoading } = usePublicCars(filters);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-TZ', {
+    return new Intl.NumberFormat('sw-TZ', {
       style: 'currency',
       currency: 'TZS',
       minimumFractionDigits: 0,
@@ -39,20 +39,20 @@ export default function CarsPage() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary to-primary/90 text-primary-foreground py-12">
+        <section className="bg-gradient-to-br from-primary to-primary/90 text-primary-foreground py-10 md:py-12">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Our Cars</h1>
-            <p className="text-lg text-primary-foreground/80 max-w-2xl">
-              Find your perfect vehicle — use the search bar above to filter by brand, price, year & more
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-4">Tazama Magari Yetu</h1>
+            <p className="text-base md:text-lg text-primary-foreground/80 max-w-2xl">
+              Pata gari lako bora — tumia sehemu ya kutafuta hapo juu kuchuja kwa aina, bei, mwaka na zaidi
             </p>
             {activeFilterCount > 0 && (
-              <p className="text-sm text-accent mt-2">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</p>
+              <p className="text-sm text-accent mt-2">Vichujio {activeFilterCount} vinatumika</p>
             )}
           </div>
         </section>
 
         {/* Cars Grid */}
-        <section className="py-12">
+        <section className="py-8 md:py-12">
           <div className="container mx-auto px-4">
             <div>
                 {isLoading ? (
@@ -63,10 +63,10 @@ export default function CarsPage() {
                   <>
                     <div className="mb-6">
                       <p className="text-muted-foreground">
-                        Showing {cars.length} {cars.length === 1 ? 'car' : 'cars'}
+                        Inaonyesha magari {cars.length}
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                       {cars.map((car) => (
                         <Card key={car.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                           <div className="aspect-video relative overflow-hidden bg-muted">
@@ -75,6 +75,7 @@ export default function CarsPage() {
                                 src={car.car_images[0].image_url}
                                 alt={car.title}
                                 className="w-full h-full object-cover"
+                                loading="lazy"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
@@ -109,7 +110,7 @@ export default function CarsPage() {
                               </div>
                             </div>
                             <Link to={`/cars/${car.id}`}>
-                              <Button className="w-full">View Details</Button>
+                              <Button className="w-full">Tazama Zaidi</Button>
                             </Link>
                           </CardContent>
                         </Card>
@@ -119,11 +120,11 @@ export default function CarsPage() {
                 ) : (
                   <div className="text-center py-20">
                     <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-xl font-semibold mb-2">No cars found</h3>
+                    <h3 className="text-xl font-semibold mb-2">Hakuna magari yaliyopatikana</h3>
                     <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results
+                      Jaribu kubadilisha vichujio vyako ili kuona matokeo zaidi
                     </p>
-                    <Button onClick={() => window.location.href = '/cars'}>Reset Filters</Button>
+                    <Button onClick={() => window.location.href = '/cars'}>Futa Vichujio</Button>
                   </div>
                 )}
               </div>
